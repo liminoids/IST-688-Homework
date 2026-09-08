@@ -38,7 +38,7 @@ if provider == "OpenAI":
         model = "gpt-5-nano"
 else:
     if use_advanced:
-        model = st.sidebar.selectbox("Advanced model:", ("claude-opus-5", "claude-sonnet-5"))
+        model = st.sidebar.selectbox("Advanced model:", ("claude-fable-5-1", "claude-opus-5", "claude-sonnet-5"))
     else:
         model = "claude-haiku-4-5-20251001"
 
