@@ -30,15 +30,16 @@ def fetch(url):
 st.title("HW 3 - Streaming URL Chatbot")
 
 st.write(
-    "This chatbot answers questions about up to two web pages. Paste one or two URLs "
-    "in the sidebar and pick a model (OpenAI or Anthropic, each at its current top model). "
-    "The text of each page is loaded into a **system prompt** that is sent with every "
-    "message and is never dropped, so the documents are always in front of the model. "
-    "**Conversation memory is a buffer of 6 messages:** the bot remembers your last 3 "
-    "exchanges (3 questions and 3 answers) and sends them along with your new question. "
-    "Anything older falls out of the buffer, but the documents stay. The bot is told to "
-    "answer from the documents first and to say so when it is drawing on general "
-    "knowledge instead."
+    "This application allows users to engage with up to two documents sourced from "
+    "web pages. Paste one or two URLs in the sidebar, choose a model (OpenAI or "
+    "Anthropic, each vendor's current top model), and start asking. "
+    "The text of each page is placed in a **system prompt** that travels with every "
+    "message and is never dropped, so the documents stay in front of the model for "
+    "the whole conversation. "
+    "**Memory works as a buffer of six messages:** the model receives your last three "
+    "exchanges along with your new question, and anything older falls away — the "
+    "documents don't. It's asked to answer from the documents first and to tell you "
+    "when it's reaching for general knowledge instead."
 )
 
 # Sidebar: up to two URLs
