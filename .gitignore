@@ -1,4 +1,5 @@
 .venv/
-.streamlit/secrets.toml
+.streamlit/*
+!.streamlit/config.toml
 __pycache__/
-.streamlit/
+HW/HW4_ChromaDB/

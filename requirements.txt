@@ -4,3 +4,5 @@ PyMuPDF
 beautifulsoup4
 anthropic
 requests
+chromadb
+pysqlite3-binary; platform_system == "Linux"
