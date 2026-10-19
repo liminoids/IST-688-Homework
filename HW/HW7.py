@@ -40,19 +40,22 @@ import chromadb
 # the app turns those into links from the database - so every source shown
 # is a real record, and the saved text sits one click under each answer.
 
-# ---------- The Brief: page-local styling, built on HW 5 ----------
+# ---------- The Brief: soft pastels, page-local styling ----------
 # The marker gates every rule, including widget menus rendered in portals.
 # Leaving HW 7 removes the marker and its styling; no shared theme is changed.
 STYLE = """
 <div id="hw7-page-marker" aria-hidden="true"></div>
 <style>
 body:has(#hw7-page-marker) {
-    --hw7-ink: #f3e3ea;
-    --hw7-rose: #e8b4c8;
-    --hw7-muted: #c9a7b9;
-    --hw7-line: #674558;
-    --hw7-paper: #f4e8ed;
-    --hw7-paper-ink: #392532;
+    --hw7-ink: #493449;
+    --hw7-rose: #823d64;
+    --hw7-muted: #6f576d;
+    --hw7-line: #ddc5d6;
+    --hw7-paper: #fffdfd;
+    --hw7-paper-ink: #493449;
+    --hw7-blush: #f8dfeb;
+    --hw7-lilac: #eee6f8;
+    --hw7-mint: #e8f3ee;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }
@@ -61,47 +64,42 @@ body:has(#hw7-page-marker) .stApp :not(span[translate="no"]):not(span[data-testi
     font-family: "Times New Roman", Times, serif !important;
 }
 body:has(#hw7-page-marker) [data-testid="stAppViewContainer"] {
-    background: radial-gradient(ellipse at 82% 0%, #432738 0%, transparent 52%),
-                linear-gradient(180deg, #2b1d26 0%, #30202b 60%, #2c2034 100%);
-    color: var(--hw7-ink);
-    color-scheme: dark;
+    background: radial-gradient(ellipse at 95% 0%, #f0e8fa 0%, transparent 44%),
+                radial-gradient(ellipse at 0% 48%, #fce5ef 0%, transparent 46%), #fff9fc;
+    color: var(--hw7-ink); color-scheme: light;
 }
-body:has(#hw7-page-marker) [data-testid="stHeader"] { background: rgba(43,29,38,.92); color: var(--hw7-ink); }
-body:has(#hw7-page-marker) [data-testid="stMainBlockContainer"] { max-width: 1060px; padding-top: 3.2rem; padding-bottom: 3rem; }
+body:has(#hw7-page-marker) [data-testid="stHeader"] { background: rgba(255,249,252,.94); color: var(--hw7-ink); }
+body:has(#hw7-page-marker) [data-testid="stMainBlockContainer"] { max-width: 1060px; padding-top: 3.4rem; padding-bottom: 3rem; }
 body:has(#hw7-page-marker) [data-testid="stBottom"] > div,
 body:has(#hw7-page-marker) [data-testid="stBottomBlockContainer"] { background: transparent; }
 body:has(#hw7-page-marker) [data-testid="stBottomBlockContainer"] { max-width: 1060px; }
-body:has(#hw7-page-marker) [data-testid="stBottom"] {
-    background: linear-gradient(0deg, #2c2034 75%, rgba(44,32,52,0));
-    padding-top: .6rem;
-}
-body:has(#hw7-page-marker) [data-testid="stSidebar"] { background: #2a1d27; border-right: 1px solid #5a3b4c; }
+body:has(#hw7-page-marker) [data-testid="stBottom"] { background: linear-gradient(0deg, #fff9fc 78%, rgba(255,249,252,0)); padding-top: .65rem; }
+body:has(#hw7-page-marker) [data-testid="stSidebar"] { background: #f7eff8; border-right: 1px solid #e3d1e4; }
 body:has(#hw7-page-marker) [data-testid="stSidebarContent"] { padding-top: 1rem; }
-body:has(#hw7-page-marker) [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { color: var(--hw7-ink); }
+body:has(#hw7-page-marker) [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
 body:has(#hw7-page-marker) [data-testid="stWidgetLabel"] p,
 body:has(#hw7-page-marker) [data-testid="stRadio"] p { color: var(--hw7-ink); }
+body:has(#hw7-page-marker) [data-testid="stWidgetLabel"] p { font-size: .98rem; }
 body:has(#hw7-page-marker) [data-testid="stCaptionContainer"],
-body:has(#hw7-page-marker) [data-testid="stCaptionContainer"] p { color: var(--hw7-muted) !important; font-size: .86rem; line-height: 1.55; }
-body:has(#hw7-page-marker) [data-testid="stCaptionContainer"] { opacity: 1; }
+body:has(#hw7-page-marker) [data-testid="stCaptionContainer"] p { color: var(--hw7-muted) !important; font-size: .88rem; line-height: 1.55; opacity: 1; }
 body:has(#hw7-page-marker) [data-testid="stRadioGroup"],
-body:has(#hw7-page-marker) [data-testid="stRadioGroup"] > div { width: 100%; }
+body:has(#hw7-page-marker) [data-testid="stRadioGroup"] > div { max-width: 100%; }
 body:has(#hw7-page-marker) [data-testid="stRadio"] label[data-baseweb="radio"],
 body:has(#hw7-page-marker) [data-testid="stRadioOption"] {
-    border: 1px solid transparent; border-radius: 9px; padding: .4rem .6rem;
-    margin: 0 0 .2rem; background: rgba(255,255,255,.015); display: flex; width: 100%;
+    border: 1px solid #e6d6e6; border-radius: 12px; padding: .48rem .65rem;
+    margin: 0 0 .25rem; background: rgba(255,255,255,.68); min-height: 2.8rem;
 }
-body:has(#hw7-page-marker) [data-testid="stRadio"] label:has(input:checked) {
-    border-color: #82576e; background: #422b3a;
-}
-body:has(#hw7-page-marker) [data-testid="stRadioOption"] > div > div:first-child { background: #634557; border-color: #a87b92; }
-body:has(#hw7-page-marker) [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child { background: var(--hw7-rose); border-color: var(--hw7-rose); }
-body:has(#hw7-page-marker) [data-testid="stRadioOption"][data-selected="true"] > div > div:first-child > div { background: #30212b; }
-body:has(#hw7-page-marker) [data-testid="stRadio"] label:has(input:focus-visible) { outline: 2px solid var(--hw7-rose); outline-offset: 2px; }
+body:has(#hw7-page-marker) [data-testid="stRadio"] label:has(input:checked),
+body:has(#hw7-page-marker) [data-testid="stRadioOption"][data-selected="true"] { border-color: #9c6487; background: #f5dce9; }
+body:has(#hw7-page-marker) [data-testid="stRadioOption"] > div > div > div:first-child { background: #fff; border-color: #906481; }
+body:has(#hw7-page-marker) [data-testid="stRadioOption"][data-selected="true"] > div > div > div:first-child { background: var(--hw7-rose); border-color: var(--hw7-rose); }
+body:has(#hw7-page-marker) [data-testid="stRadioOption"][data-selected="true"] > div > div > div:first-child > div { background: #fff; }
+body:has(#hw7-page-marker) [data-testid="stRadio"] label:has(input:focus-visible) { outline: 2px solid #633b61; outline-offset: 3px; }
 body:has(#hw7-page-marker) [data-testid="stSlider"] { color: var(--hw7-ink); }
 body:has(#hw7-page-marker) [data-testid="stSlider"] [role="slider"] { background: var(--hw7-rose); border-color: var(--hw7-rose); }
 body:has(#hw7-page-marker) [data-testid="stSlider"] [role="group"] > div { background: transparent; }
 body:has(#hw7-page-marker) [data-testid="stSlider"] [role="group"] > div > div:first-child {
-    background: linear-gradient(to right, var(--hw7-rose) 0%, var(--hw7-rose) var(--hw7-slider-fill, 50%), #69495e var(--hw7-slider-fill, 50%), #69495e 100%);
+    background: linear-gradient(to right, #a25b83 0%, #a25b83 var(--hw7-slider-fill, 50%), #e3d1e2 var(--hw7-slider-fill, 50%), #e3d1e2 100%);
 }
 body:has(#hw7-page-marker) [data-testid="stSlider"] [role="group"] > div > div:has(input[type="range"]) { background: var(--hw7-rose); }
 body:has(#hw7-page-marker) [data-testid="stSlider"] [data-testid="stSliderThumbValue"] p { color: var(--hw7-rose); }
@@ -110,118 +108,108 @@ body:has(#hw7-page-marker) h2,
 body:has(#hw7-page-marker) h3 { color: var(--hw7-ink); font-weight: 400; }
 body:has(#hw7-page-marker) a { color: var(--hw7-rose); text-underline-offset: .2em; }
 body:has(#hw7-page-marker) .stButton > button {
-    background: #432d3c; color: var(--hw7-ink); border: 1px solid #855a72;
-    border-radius: 10px; min-height: 2.85rem; padding: .65rem 1rem;
-    transition: background .15s ease, border-color .15s ease;
+    background: #fffdfd; color: var(--hw7-ink); border: 1px solid #b68ca8;
+    border-radius: 15px; min-height: 3rem; padding: .65rem 1rem;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
-body:has(#hw7-page-marker) .stButton > button:hover { background: #533449; border-color: var(--hw7-rose); color: var(--hw7-rose); }
-body:has(#hw7-page-marker) .stButton > button[kind="primary"] {
-    background: var(--hw7-rose); color: #30212b; border-color: var(--hw7-rose);
-}
-body:has(#hw7-page-marker) .stButton > button[kind="primary"]:hover { background: #f2ccdb; color: #30212b; }
+body:has(#hw7-page-marker) .stButton > button:hover { background: #f8e7f0; border-color: #823d64; color: #602a4c; box-shadow: 0 3px 12px #83526d10; }
+body:has(#hw7-page-marker) .stButton > button[kind="primary"] { background: #edc6da; color: #4e2d43; border-color: #bd819e; }
+body:has(#hw7-page-marker) .stButton > button[kind="primary"]:hover { background: #e8b7d0; color: #4e2d43; }
 body:has(#hw7-page-marker) .stButton > button:focus-visible,
+body:has(#hw7-page-marker) a:focus-visible,
+body:has(#hw7-page-marker) summary:focus-visible,
+body:has(#hw7-page-marker) [role="slider"]:focus-visible,
 body:has(#hw7-page-marker) [data-baseweb="select"]:focus-within,
 body:has(#hw7-page-marker) [data-testid="stSelectbox"] [role="group"]:focus-within,
-body:has(#hw7-page-marker) [data-testid="stChatInput"]:focus-within {
-    outline: 2px solid var(--hw7-rose); outline-offset: 3px;
-}
+body:has(#hw7-page-marker) [data-testid="stChatInput"]:focus-within { outline: 2px solid #633b61; outline-offset: 3px; }
 body:has(#hw7-page-marker) [data-baseweb="select"] > div,
-body:has(#hw7-page-marker) [data-testid="stSelectbox"] [role="group"] {
-    background: #382631; color: var(--hw7-ink); border-color: #855a72;
-    border-radius: 10px; min-height: 2.85rem;
-}
+body:has(#hw7-page-marker) [data-testid="stSelectbox"] [role="group"] { background: #fffdfd; color: var(--hw7-ink); border-color: #b68ca8; border-radius: 15px; min-height: 3rem; }
 body:has(#hw7-page-marker) [data-baseweb="select"] input,
 body:has(#hw7-page-marker) [data-testid="stSelectbox"] input { color: var(--hw7-ink); background: transparent; }
 body:has(#hw7-page-marker) [data-testid="stSelectbox"] input::placeholder { color: var(--hw7-muted); }
 body:has(#hw7-page-marker) [data-baseweb="select"] svg,
 body:has(#hw7-page-marker) [data-testid="stSelectbox"] svg { fill: var(--hw7-rose); color: var(--hw7-rose); }
-body:has(#hw7-page-marker) [role="listbox"] { background: #382631; color: var(--hw7-ink); font-family: "Times New Roman", Times, serif; }
-body:has(#hw7-page-marker) [role="option"] { background: #382631; color: var(--hw7-ink); }
+body:has(#hw7-page-marker) [role="listbox"] { background: #fffdfd; color: var(--hw7-ink); font-family: "Times New Roman", Times, serif; border: 1px solid #b68ca8; border-radius: 12px; }
+body:has(#hw7-page-marker) [role="option"] { background: #fffdfd; color: var(--hw7-ink); }
 body:has(#hw7-page-marker) [role="option"]:hover,
-body:has(#hw7-page-marker) [role="option"][aria-selected="true"] { background: #583b4d; }
+body:has(#hw7-page-marker) [role="option"][aria-selected="true"] { background: #f5dce9; }
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] {
-    background: rgba(49,32,43,.72); border: 1px solid var(--hw7-line);
-    border-radius: 14px; padding: 1.45rem 1.6rem; margin: .65rem 0;
-    box-shadow: 0 10px 32px rgba(17,10,16,.12);
+    background: rgba(255,255,255,.78); border: 1px solid #e2cedc; border-radius: 22px;
+    padding: 1.4rem 1.45rem; margin: .8rem 0; box-shadow: 0 6px 26px #633b6107;
 }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"]:has([aria-label="Chat message from user"]) {
-    background: #432c3a; border-color: #80546c; padding: .85rem 1.2rem;
-}
+body:has(#hw7-page-marker) [data-testid="stChatMessage"]:has([aria-label="Chat message from user"]) { background: #eee7f6; border-color: #d8c5e4; padding: .85rem 1.15rem; }
 body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarAssistant"],
 body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarUser"],
-body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarCustom"] { background: #624154; color: var(--hw7-rose); }
+body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarCustom"] { background: #f2dce9; color: #73405f; }
 body:has(#hw7-page-marker) [data-testid="stIconMaterial"],
-body:has(#hw7-page-marker) [data-testid^="stExpanderIcon"] { color: var(--hw7-rose); }
+body:has(#hw7-page-marker) [data-testid^="stExpanderIcon"] { color: #73405f; }
 body:has(#hw7-page-marker) [data-testid="stChatMessageContent"] { min-width: 0; }
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] { color: var(--hw7-ink); }
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] p,
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] li { color: var(--hw7-ink); font-size: 1.06rem; line-height: 1.72; overflow-wrap: anywhere; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 2rem; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding-left: .55rem; margin: .6rem 0 1.8rem; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li + li { border-top: 1px solid var(--hw7-line); padding-top: 1.4rem; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li::marker { color: var(--hw7-rose); font-size: 1.55rem; font-weight: 400; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] strong { color: #f5ccdf; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li > p:first-child > strong:first-child {
-    font-size: 1.24rem; font-weight: 600; line-height: 1.4;
-}
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] a { color: var(--hw7-rose); }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stCaptionContainer"] p { font-size: .8rem; line-height: 1.6; }
-body:has(#hw7-page-marker) [data-testid="stChatInput"] {
-    background: #3d2836; border: 1px solid #986c83; border-radius: 15px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.22);
-}
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] li,
+body:has(#hw7-page-marker) [data-testid="stText"] { color: var(--hw7-ink); font-size: 1.07rem; line-height: 1.75; overflow-wrap: anywhere; }
+body:has(#hw7-page-marker) [data-testid="stText"] { white-space: pre-wrap; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 2.05rem; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding: .75rem 1rem .8rem; margin: .35rem 0 1rem; border: 1px solid #ead9e5; border-radius: 14px; background: #fffafb; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li:nth-child(3n+2) { background: #faf7fd; border-color: #e5d9ed; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li:nth-child(3n+3) { background: #f7fbf8; border-color: #dce9df; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li::marker { color: #8a496f; font-size: 1.45rem; font-style: italic; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] strong { color: #693b58; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li > p:first-child > strong:first-child { font-size: 1.23rem; font-weight: 600; line-height: 1.4; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stCaptionContainer"] p { font-size: .81rem; line-height: 1.6; }
+body:has(#hw7-page-marker) [data-testid="stChatInput"] { background: #fffdfd; border: 1px solid #b386a2; border-radius: 18px; box-shadow: 0 5px 24px #633b6112; }
 body:has(#hw7-page-marker) [data-testid="stChatInput"] > div { background: transparent; border-color: transparent; }
-body:has(#hw7-page-marker) [data-testid="stChatInput"] textarea { color: var(--hw7-ink); background: transparent; font-size: 1.02rem; }
-body:has(#hw7-page-marker) [data-testid="stChatInput"] textarea::placeholder { color: #d2afbf; }
+body:has(#hw7-page-marker) [data-testid="stChatInput"] textarea { color: var(--hw7-ink); background: transparent; font-size: 1.04rem; }
+body:has(#hw7-page-marker) [data-testid="stChatInput"] textarea::placeholder { color: #795c74; }
 body:has(#hw7-page-marker) [data-testid="stChatInputSubmitButton"] { color: var(--hw7-rose); background: transparent; }
-body:has(#hw7-page-marker) [data-testid="stExpander"] details {
-    background: #36242f; border: 1px solid var(--hw7-line); border-radius: 10px;
-}
-body:has(#hw7-page-marker) [data-testid="stExpander"] summary { color: var(--hw7-rose); padding: .8rem 1rem; }
-body:has(#hw7-page-marker) [data-testid="stStatusWidget"] { border-color: var(--hw7-line); background: #382631; }
+body:has(#hw7-page-marker) [data-testid="stExpander"] details { background: #faf5fb; border: 1px solid #d8bfd4; border-radius: 14px; }
+body:has(#hw7-page-marker) [data-testid="stExpander"] summary { color: #6c3b5a; padding: .8rem 1rem; }
+body:has(#hw7-page-marker) [data-testid="stStatusWidget"] { border-color: #d9c8df; background: #f7f2fa; }
 body:has(#hw7-page-marker) [data-testid="stSpinner"] p { color: var(--hw7-rose); }
 body:has(#hw7-page-marker) [data-testid="stAlert"] p { color: inherit; }
-.hw7-masthead { padding: .3rem 0 1.5rem; margin-bottom: .35rem; border-bottom: 4px double var(--hw7-line); }
-.hw7-kicker { color: var(--hw7-muted); text-transform: uppercase; letter-spacing: .17em; font-size: .74rem; margin: 0 0 .75rem; }
-body:has(#hw7-page-marker) .hw7-masthead .hw7-kicker { font-size: .74rem; }
-body:has(#hw7-page-marker) .hw7-masthead h1 { font-size: clamp(3.6rem, 7vw, 5.5rem); line-height: .98; letter-spacing: -.045em; margin: 0; padding: 0 0 .5rem; color: var(--hw7-rose); }
-.hw7-deck { color: var(--hw7-ink); font-size: 1.25rem; line-height: 1.5; margin: .4rem 0 1.15rem; }
-.hw7-archive { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; color: var(--hw7-muted); font-size: .88rem; }
-.hw7-archive span + span { border-left: 1px solid var(--hw7-line); padding-left: 1.25rem; }
-.hw7-sidebar-head { padding: .25rem 0 1rem; border-bottom: 1px solid var(--hw7-line); margin-bottom: .25rem; }
-.hw7-sidebar-head h2 { margin: 0 0 .35rem; padding: 0; font-size: 1.6rem; color: var(--hw7-rose); }
-.hw7-sidebar-head p { margin: 0; color: var(--hw7-muted); font-size: .86rem; }
-.hw7-lens-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .8rem; padding: .9rem 0; margin-bottom: .3rem; border-bottom: 1px solid var(--hw7-line); }
-.hw7-lens-strip .hw7-kicker { font-size: .68rem; margin: 0; }
-.hw7-lens-strip strong { color: var(--hw7-rose); font-weight: 400; font-size: 1.1rem; }
-.hw7-lens-strip .hw7-goal { color: var(--hw7-muted); font-size: .95rem; }
-.hw7-empty { margin: 1.35rem 0 2rem; padding: 1.6rem 1.7rem; border-left: 2px solid #bb829e; background: rgba(72,43,60,.3); }
-.hw7-empty h2 { padding: 0; margin: 0 0 .6rem; font-size: 1.85rem; line-height: 1.2; }
-.hw7-empty p { margin: 0; color: var(--hw7-muted); line-height: 1.65; font-size: 1rem; max-width: 42rem; }
-.hw7-answer-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; padding: .25rem 0 .85rem; border-bottom: 1px solid var(--hw7-line); margin-bottom: .65rem; }
-.hw7-answer-head span { color: var(--hw7-muted); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; }
-.hw7-answer-head .hw7-answer-lens { color: var(--hw7-rose); }
-.hw7-source-panel { background: var(--hw7-paper); border: 1px solid #dac0ce; border-left: 3px solid #b27b96; border-radius: 5px; padding: 1.4rem 1.5rem; margin: .6rem 0 0; }
-body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-kicker { color: #775667; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 .6rem; }
-body:has(#hw7-page-marker) .hw7-source-panel h3 { color: var(--hw7-paper-ink); font-size: 1.35rem; font-weight: 600; line-height: 1.35; padding: 0; margin: 0 0 .5rem; }
-body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-meta { color: #755063; font-size: .88rem; margin: 0 0 1rem; }
-body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-label { color: #755063; border-top: 1px solid #cfb3c2; padding-top: .9rem; margin: 0 0 .4rem; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
-body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-text { color: var(--hw7-paper-ink); font-size: 1.02rem; line-height: 1.7; margin: 0 0 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
-body:has(#hw7-page-marker) .hw7-source-panel a { color: #713b58; font-size: .95rem; font-weight: 600; text-decoration: underline; }
+body:has(#hw7-page-marker) .hw7-masthead { position: relative; padding: 1.6rem 1.7rem 1.4rem; margin-bottom: 1.2rem; border: 1px solid #e0c9dc; border-radius: 24px 24px 9px 24px; background: linear-gradient(115deg, #fff9fc 5%, #f8e7f0 60%, #eee6f8); }
+body:has(#hw7-page-marker) .hw7-kicker { color: #71546b; text-transform: uppercase; letter-spacing: .14em; font-size: .74rem; margin: 0 0 .65rem; }
+body:has(#hw7-page-marker) .hw7-masthead h1 { font-size: clamp(3.6rem, 7vw, 5.25rem); line-height: 1.02; letter-spacing: -.045em; margin: 0; padding: 0 0 .4rem; color: #673b58; }
+body:has(#hw7-page-marker) .hw7-masthead h1::after { content: " ✿"; font-size: .37em; vertical-align: super; color: #a46588; letter-spacing: 0; }
+body:has(#hw7-page-marker) .hw7-deck { color: var(--hw7-ink); font-size: 1.13rem; line-height: 1.6; margin: .5rem 0 1.1rem; max-width: 47rem; }
+body:has(#hw7-page-marker) .hw7-archive { display: flex; flex-wrap: wrap; gap: .45rem; color: #61435a; font-size: .84rem; }
+body:has(#hw7-page-marker) .hw7-archive span { background: #fffafddd; border: 1px solid #dfc8d9; border-radius: 999px; padding: .25rem .65rem; }
+body:has(#hw7-page-marker) .hw7-sidebar-head { padding: .25rem 0 1rem; border-bottom: 1px solid #dac6dd; margin-bottom: .3rem; }
+body:has(#hw7-page-marker) .hw7-sidebar-head h2 { margin: 0 0 .35rem; padding: 0; font-size: 1.75rem; color: #693b5b; }
+body:has(#hw7-page-marker) .hw7-sidebar-head p { margin: 0; color: var(--hw7-muted); font-size: .88rem; }
+body:has(#hw7-page-marker) .hw7-lens-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .75rem; padding: .9rem .1rem; margin: .35rem 0 .1rem; border-bottom: 1px solid #ddc9db; }
+body:has(#hw7-page-marker) .hw7-lens-strip .hw7-kicker { font-size: .7rem; margin: 0; }
+body:has(#hw7-page-marker) .hw7-lens-strip strong { color: #643c62; font-weight: 600; font-size: 1rem; border: 1px solid #d7c2e1; background: #eee6f8; border-radius: 999px; padding: .15rem .65rem; }
+body:has(#hw7-page-marker) .hw7-lens-strip .hw7-goal { color: var(--hw7-muted); font-size: .97rem; }
+body:has(#hw7-page-marker) .hw7-empty { position: relative; margin: 1rem 0 1.5rem; padding: 1.4rem 1.5rem; border: 1px solid #d8e5dc; border-radius: 18px; background: #edf5f0; }
+body:has(#hw7-page-marker) .hw7-empty h2 { padding: 0; margin: 0 0 .55rem; font-size: 1.8rem; line-height: 1.2; }
+body:has(#hw7-page-marker) .hw7-empty p { margin: 0; color: #526756; line-height: 1.65; font-size: 1rem; max-width: 43rem; }
+body:has(#hw7-page-marker) .hw7-answer-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; padding: .1rem 0 .8rem; border-bottom: 1px solid #dfcdda; margin-bottom: .8rem; }
+body:has(#hw7-page-marker) .hw7-answer-head span { color: var(--hw7-muted); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+body:has(#hw7-page-marker) .hw7-answer-head .hw7-answer-lens { color: #73405f; }
+body:has(#hw7-page-marker) .hw7-source-panel { background: #fffdfd; border: 1px solid #dbc6d6; border-left: 3px solid #b780a0; border-radius: 12px; padding: 1.3rem 1.4rem; margin: .6rem 0 0; }
+body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-kicker { color: #775667; font-size: .73rem; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .6rem; }
+body:has(#hw7-page-marker) .hw7-source-panel h3 { color: var(--hw7-paper-ink); font-size: 1.3rem; font-weight: 600; line-height: 1.4; padding: 0; margin: 0 0 .5rem; }
+body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-meta { color: #755063; font-size: .9rem; margin: 0 0 1rem; }
+body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-label { color: #755063; border-top: 1px solid #e1ccda; padding-top: .85rem; margin: 0 0 .4rem; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; }
+body:has(#hw7-page-marker) .hw7-source-panel .hw7-source-text { color: var(--hw7-paper-ink); font-size: 1.03rem; line-height: 1.75; margin: 0 0 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+body:has(#hw7-page-marker) .hw7-source-panel a { color: #713b58; font-size: .98rem; font-weight: 600; text-decoration: underline; }
 @media (max-width: 640px) {
-    body:has(#hw7-page-marker) [data-testid="stMainBlockContainer"] { padding: 4.3rem 1.1rem 3rem; }
-    body:has(#hw7-page-marker) [data-testid="stChatMessage"] { padding: 1rem .85rem; }
+    body:has(#hw7-page-marker) [data-testid="stMainBlockContainer"] { padding: 4rem 1rem 3rem; }
+    body:has(#hw7-page-marker) .hw7-masthead { padding: 1.15rem; border-radius: 20px 20px 8px 20px; }
+    body:has(#hw7-page-marker) .hw7-masthead h1 { font-size: 3.7rem; }
+    body:has(#hw7-page-marker) .hw7-deck { font-size: 1.04rem; }
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] { padding: 1rem .75rem; border-radius: 17px; }
     body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarCustom"],
     body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarAssistant"],
     body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarUser"] { display: none; }
-    body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stExpanderDetails"] { padding: .8rem .6rem; }
-    body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 1.5rem; }
-    body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding-left: .2rem; }
-    .hw7-archive { gap: .25rem .9rem; }
-    .hw7-archive span + span { border-left: 0; padding-left: 0; }
-    .hw7-empty { padding: 1rem; margin: .65rem 0 1rem; }
-    .hw7-source-panel { padding: 1.1rem; }
-    body:has(#hw7-page-marker) .hw7-source-panel h3 { font-size: 1.2rem; }
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stExpanderDetails"] { padding: .75rem .5rem; }
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 1.45rem; }
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding: .65rem; }
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] p,
+    body:has(#hw7-page-marker) [data-testid="stChatMessage"] li { font-size: 1.03rem; }
+    body:has(#hw7-page-marker) .hw7-empty { padding: 1.1rem; }
+    body:has(#hw7-page-marker) .hw7-source-panel { padding: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     body:has(#hw7-page-marker) * { scroll-behavior: auto !important; transition: none !important; }
@@ -463,6 +451,33 @@ LENSES = {
 }
 
 
+# Display labels describe the existing rules; prompt keys and wording stay intact.
+LENS_LABELS = {
+    "Exposure": "Legal risk and legal work",
+    "Stakes": "Financial scale",
+    "Affect": "Intensity of reader response",
+    "Offstage": "Indirect client relevance",
+}
+LENS_AUDIT = {
+    "Exposure": {
+        "summary": "Prioritizes legal disputes, investigations and enforcement, then transactions and major organizational changes.",
+        "limit": "This combines legal risk with legal work, including transactions that are not adverse events. It does not define a tie-breaker for severity, urgency or likelihood.",
+    },
+    "Stakes": {
+        "summary": "Prioritizes financial amounts and the scale described in the saved record.",
+        "limit": "Deal values, valuations, fines and claimed damages measure different things. The rule does not specify how to compare them; it does not simply say to choose the largest number.",
+    },
+    "Affect": {
+        "summary": "Prioritizes how strongly a story could affect a lawyer emotionally, physically or cognitively.",
+        "limit": "These are possible interpretations, not measured reactions. Every mode already asks for possible reader responses; this option makes their intensity part of the ranking.",
+    },
+    "Offstage": {
+        "summary": "Prioritizes supported connections through competitors, suppliers, regulators, industries or related lawsuits.",
+        "limit": "This also broadens which articles may qualify, including useful misfiled stories. It is a relevance-scope choice as well as a ranking rule; a wrong company tag alone does not make a story important.",
+    },
+}
+
+
 def system_prompt(top_n, lens):
     return (
         f"You are the news desk for a large global law firm. You report only on the "
@@ -580,6 +595,72 @@ def display_text(text, *, markdown=True, emphasize_reading=False):
         text = text.replace(f"\ue000{index}\ue001", protected[index])
     return text
 
+
+def plain_answer_text(text):
+    """Make a display copy with simple Brief formatting removed; never edit raw text.
+
+    Preserve code, citations, and link destinations literally. This deliberately
+    avoids guessing at a complete Markdown conversion: ambiguous markup stays.
+    """
+    protected = []
+    marker = "\ue010HW7plain"
+    while marker in text:
+        marker += "_"
+
+    def keep(value):
+        protected.append(value)
+        return f"{marker}{len(protected) - 1}\ue011"
+
+    # An unclosed fence protects the remainder, just as a Markdown code block.
+    offset = 0
+    fence = re.compile(r"(?m)^ {0,3}(`{3,}|~{3,})[^\n]*(?:\n|$)")
+    while match := fence.search(text, offset):
+        mark = match[1]
+        closing = re.search(
+            r"(?m)^ {0,3}" + re.escape(mark[0]) +
+            "{" + str(len(mark)) + r",}[ \t]*(?:\n|$)", text[match.end():]
+        )
+        end = match.end() + closing.end() if closing else len(text)
+        end -= int(end > match.start() and text[end - 1] == "\n")
+        token = keep(text[match.start():end])
+        text = text[:match.start()] + token + text[end:]
+        offset = match.start() + len(token)
+
+    text = re.sub(r"(`+)(?!`)([\s\S]*?)(?<!`)\1(?!`)", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?m)^ {0,3}\[[^\]\n]+\]:[^\n]*", lambda m: keep(m[0]), text)
+    text = re.sub(r"<(?:https?://|mailto:)[^>\n]+>", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?<=\])\[[^\]\n]*\]", lambda m: keep(m[0]), text)
+    offset = 0
+    while match := re.search(r"\]\(", text[offset:]):
+        start = offset + match.end() - 1
+        end, depth = start + 1, 1
+        while end < len(text) and depth:
+            if text[end] == "\\":
+                end += 2
+                continue
+            depth += (text[end] == "(") - (text[end] == ")")
+            end += 1
+        if depth:
+            # Do not alter the uncertain target of an unfinished link.
+            text = text[:start] + keep(text[start:])
+            break
+        token = keep(text[start:end])
+        text = text[:start] + token + text[end:]
+        offset = start + len(token)
+
+    # Bare URLs are data, too; an apostrophe or asterisks can belong to a URL.
+    text = re.sub(r"https?://[^\s<>]+", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?m)^( {0,3})#{1,6}[ \t]+(?=\S)", r"\1", text)
+    text = re.sub(
+        r"(?<![\w\\*])\*\*(?![\s*])([^\n*]*?[^\s*])\*\*(?![\w*])",
+        r"\1", text,
+    )
+    text = display_text(text, markdown=True)
+    for index in range(len(protected) - 1, -1, -1):
+        text = text.replace(f"{marker}{index}\ue011", protected[index])
+    return text
+
+
 class ReadingStatus:
     # Keep tool results and stored steps raw while styling their live display.
     def __init__(self, status):
@@ -642,8 +723,8 @@ def show_sources(ids, message_index=0):
 
 # ---------- The page ----------
 st.sidebar.markdown(
-    '<div class="hw7-sidebar-head"><h2>Shape the reading.</h2>'
-    '<p>Settings apply to your next request.</p></div>',
+    '<div class="hw7-sidebar-head"><h2>Brief settings</h2>'
+    '<p>Model, priority and story count apply to your next request.</p></div>',
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("**Model**")
@@ -651,13 +732,18 @@ model_label = st.sidebar.radio(
     "Model", list(MODELS), label_visibility="collapsed", key="HW7_model",
     help="Ask the same question on both to compare them (step 4).",
 )
-st.sidebar.markdown("**Lens**")
+st.sidebar.markdown("**What to prioritize**")
 lens = st.sidebar.radio(
-    "Lens", list(LENSES), label_visibility="collapsed", key="HW7_lens",
-    help="Each lens gives \u201cinteresting\u201d one specific goal.",
+    "What to prioritize", list(LENSES), label_visibility="collapsed", key="HW7_lens",
+    format_func=LENS_LABELS.__getitem__,
+    help="Changes the priority for the next ranked brief. Inspect the rules below the archive controls.",
 )
 st.sidebar.caption(f"Goal: {LENSES[lens]['goal']}")
 top_n = st.sidebar.slider("Stories in a brief", 5, 15, 10, key="HW7_top_n")
+st.sidebar.radio(
+    "Answer display", ["Brief", "Plain text"], horizontal=True, key="HW7_answer_view",
+    help="Change the presentation without asking the model again. Sources stay available.",
+)
 st.sidebar.caption(f"{len(ARTICLES):,} articles \u00b7 {len(COMPANIES)} clients \u00b7 loaded from HW7_ChromaDB/")
 
 if "HW7_messages" not in st.session_state:
@@ -683,12 +769,12 @@ def ask_client():
 st.markdown(
     f'<style>body:has(#hw7-page-marker) {{--hw7-slider-fill: {(top_n - 5) * 10}%;}}</style>'
     '<header class="hw7-masthead">'
-    '<p class="hw7-kicker">HW 07 / Article archive</p>'
+    '<p class="hw7-kicker">HW 07 · Saved news archive</p>'
     '<h1>The Brief.</h1>'
     f'<p class="hw7-deck">A news desk for a global law firm. It answers only from '
     f'{len(ARTICLES):,} saved articles about {len(COMPANIES)} clients ({SPAN}). Ask for the '
-    f'most interesting news, or for news about a client or topic. The lens in the sidebar '
-    f'sets what \u201cinteresting\u201d is for.</p>'
+    f'most interesting news, or for news about a client or topic. Use the sidebar to choose '
+    f'what the next ranked brief prioritizes.</p>'
     '<div class="hw7-archive">'
     f'<span>{len(ARTICLES):,} saved articles</span>'
     f'<span>{len(COMPANIES)} client companies</span>'
@@ -697,7 +783,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 left, right = st.columns(2)
-left.caption("ACROSS THE ARCHIVE")
+left.caption("RANK THE SAVED NEWS")
 left.button(
     "\u2726 Most interesting this week", on_click=ask,
     args=("Find the most interesting news",), key="HW7_brief",
@@ -710,14 +796,37 @@ right.selectbox(
     format_func=display_text,
 )
 st.markdown(
-    '<div class="hw7-lens-strip"><span class="hw7-kicker">Next reading</span>'
-    f'<strong>{lens}</strong><span class="hw7-goal">{LENSES[lens]["goal"]}</span>'
+    '<div class="hw7-lens-strip"><span class="hw7-kicker">Priority for the next brief</span>'
+    f'<strong>{LENS_LABELS[lens]}</strong>'
     '</div>',
     unsafe_allow_html=True,
 )
+# This inspector changes only what is displayed, not the selected ranking rule.
+with st.expander("Inspect each ranking rule", expanded=False):
+    inspected_lens = st.radio(
+        "Rule to inspect", list(LENSES), format_func=LENS_LABELS.__getitem__,
+        key="HW7_rule_to_inspect",
+        help="Inspecting a rule does not change the priority selected in Brief settings.",
+    )
+    st.markdown(f"**What it prioritizes:** {LENS_AUDIT[inspected_lens]['summary']}")
+    st.markdown(f"**Where it needs definition:** {LENS_AUDIT[inspected_lens]['limit']}")
+    st.caption(f"Existing prompt label: {inspected_lens}")
+    st.markdown("**Exact goal**")
+    st.write(display_text(LENSES[inspected_lens]["goal"]))
+    st.markdown("**Exact ranking instruction**")
+    st.write(display_text(LENSES[inspected_lens]["rule"]))
+    st.markdown("**Exact article relevance instruction for ranked briefs**")
+    st.write(display_text(LENSES[inspected_lens]["client"]))
+    st.caption(
+        "These are overlapping priorities, not exclusive story categories. All four ask for "
+        "source-supported emotional, bodily and cognitive readings. The relevance rules are "
+        "instructions to the model, not checks enforced by the search tool. Client and topic "
+        "searches have a separate instruction to list articles newest first."
+    )
+
 if not st.session_state.HW7_messages and not st.session_state.get("HW7_pending"):
     st.markdown(
-        '<section class="hw7-empty"><h2>What deserves your attention?</h2>'
+        '<section class="hw7-empty"><h2>Start a ranked brief or search.</h2>'
         '<p>Start with a ranked brief, follow a client, or ask about a topic. '
         'Each \u201cReading:\u201d explains what the story could invite in a lawyer, '
         'with the saved article close at hand.</p></section>',
@@ -734,15 +843,26 @@ def footer(msg):
 
 def show_answer(msg, message_index):
     # One renderer for new and replayed answers; old answers keep their own lens.
-    lens_label = f'{msg["lens"]} lens' if msg.get("lens") else ""
+    lens_label = LENS_LABELS.get(msg["lens"], msg["lens"]) if msg.get("lens") else ""
     st.markdown(
         '<div class="hw7-answer-head"><span>From the news file</span>'
         f'<span class="hw7-answer-lens">{escape(lens_label)}</span></div>',
         unsafe_allow_html=True,
     )
-    st.markdown(linkify(display_text(msg["content"], emphasize_reading=True)))
-    st.caption(display_text(footer(msg)))
-    show_sources(cited_ids(msg["content"]), message_index)
+    ids = cited_ids(msg["content"])
+    if st.session_state.get("HW7_answer_view", "Brief") == "Plain text":
+        st.text(plain_answer_text(msg["content"]))
+        if ids:
+            st.markdown("Sources: " + " · ".join(
+                f"[{article_id} ↗]({ARTICLES[article_id]['url']})" for article_id in ids
+            ))
+    else:
+        st.markdown(linkify(display_text(msg["content"], emphasize_reading=True)))
+    footer_text = footer(msg)
+    if msg.get("lens") in LENS_LABELS:
+        footer_text = footer_text.replace(f"{msg['lens']} lens", LENS_LABELS[msg["lens"]], 1)
+    st.caption(display_text(footer_text))
+    show_sources(ids, message_index)
 
 
 for message_index, msg in enumerate(st.session_state.HW7_messages):
