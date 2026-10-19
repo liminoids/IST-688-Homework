@@ -149,13 +149,31 @@ body:has(#hw7-page-marker) [data-testid="stChatMessage"] p,
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] li,
 body:has(#hw7-page-marker) [data-testid="stText"] { color: var(--hw7-ink); font-size: 1.07rem; line-height: 1.75; overflow-wrap: anywhere; }
 body:has(#hw7-page-marker) [data-testid="stText"] { white-space: pre-wrap; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 2.05rem; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding: .75rem 1rem .8rem; margin: .35rem 0 1rem; border: 1px solid #ead9e5; border-radius: 14px; background: #fffafb; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li:nth-child(3n+2) { background: #faf7fd; border-color: #e5d9ed; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li:nth-child(3n+3) { background: #f7fbf8; border-color: #dce9df; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li::marker { color: #8a496f; font-size: 1.45rem; font-style: italic; }
+/* Story containers keep the explanation with its headline, independent of Markdown indentation. */
+body:has(#hw7-page-marker) [class*="st-key-HW7_story_"] {
+    padding: 1.25rem 1.35rem; margin: .35rem 0 .9rem; gap: .65rem;
+    border: 1px solid #e3bfd2; border-radius: 18px; background: #fff3f8;
+    box-shadow: 0 3px 12px #633b6106;
+}
+body:has(#hw7-page-marker) [class*="st-key-HW7_story_lilac_"] { background: #f5f0fc; border-color: #d8c6e9; }
+body:has(#hw7-page-marker) [class*="st-key-HW7_story_mint_"] { background: #f0f8f3; border-color: #c9dfd1; }
+body:has(#hw7-page-marker) .hw7-story-number {
+    display: inline-block; color: #73405f; font-size: .78rem; letter-spacing: .1em;
+    text-transform: uppercase; border: 1px solid #d4acc5; border-radius: 999px;
+    background: #ffffffb3; padding: .15rem .65rem;
+}
+body:has(#hw7-page-marker) [class*="st-key-HW7_title_"] p { line-height: 1.6; font-size: .96rem; }
+body:has(#hw7-page-marker) [class*="st-key-HW7_title_"] p > strong:first-child {
+    display: block; color: #66324f; font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+    font-weight: 600; line-height: 1.3; margin-bottom: .5rem;
+}
+body:has(#hw7-page-marker) [class*="st-key-HW7_reading_"] {
+    border-top: 1px solid #d9c5d4; padding-top: .85rem;
+}
+body:has(#hw7-page-marker) [class*="st-key-HW7_reading_"] p { margin-bottom: .6rem; }
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] strong { color: #693b58; }
-body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li > p:first-child > strong:first-child { font-size: 1.23rem; font-weight: 600; line-height: 1.4; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 1.5rem; }
+body:has(#hw7-page-marker) [data-testid="stChatMessage"] li { margin-bottom: .6rem; }
 body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stCaptionContainer"] p { font-size: .81rem; line-height: 1.6; }
 body:has(#hw7-page-marker) [data-testid="stChatInput"] { background: #fffdfd; border: 1px solid #b386a2; border-radius: 18px; box-shadow: 0 5px 24px #633b6112; }
 body:has(#hw7-page-marker) [data-testid="stChatInput"] > div { background: transparent; border-color: transparent; }
@@ -205,7 +223,7 @@ body:has(#hw7-page-marker) .hw7-source-panel a { color: #713b58; font-size: .98r
     body:has(#hw7-page-marker) [data-testid="stChatMessageAvatarUser"] { display: none; }
     body:has(#hw7-page-marker) [data-testid="stChatMessage"] [data-testid="stExpanderDetails"] { padding: .75rem .5rem; }
     body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol { padding-left: 1.45rem; }
-    body:has(#hw7-page-marker) [data-testid="stChatMessage"] ol > li { padding: .65rem; }
+    body:has(#hw7-page-marker) [class*="st-key-HW7_story_"] { padding: 1rem .85rem; border-radius: 15px; }
     body:has(#hw7-page-marker) [data-testid="stChatMessage"] p,
     body:has(#hw7-page-marker) [data-testid="stChatMessage"] li { font-size: 1.03rem; }
     body:has(#hw7-page-marker) .hw7-empty { padding: 1.1rem; }
@@ -741,8 +759,8 @@ lens = st.sidebar.radio(
 st.sidebar.caption(f"Goal: {LENSES[lens]['goal']}")
 top_n = st.sidebar.slider("Stories in a brief", 5, 15, 10, key="HW7_top_n")
 st.sidebar.radio(
-    "Answer display", ["Brief", "Plain text"], horizontal=True, key="HW7_answer_view",
-    help="Change the presentation without asking the model again. Sources stay available.",
+    "Default answer display", ["Brief", "Plain text"], horizontal=True, key="HW7_answer_view",
+    help="Starting view for new answers. Each answer has its own display switch; switching does not ask the model again.",
 )
 st.sidebar.caption(f"{len(ARTICLES):,} articles \u00b7 {len(COMPANIES)} clients \u00b7 loaded from HW7_ChromaDB/")
 
@@ -841,6 +859,189 @@ def footer(msg):
     return " \u00b7 ".join(parts)
 
 
+
+_NUMBERED = re.compile(r"^(?P<indent> {0,3})(?P<number>[1-9][0-9]{0,3})[.)][ \t]+(?P<rest>.*)$")
+_FENCE = re.compile(r"^ *(?P<marker>`{3,}|~{3,})(?P<tail>.*)$")
+_CITATION = re.compile(r"(?<![\w-])(news-\d{4})(?![\w-])")
+
+
+def _outside_fences(text):
+    """Yield exact non-fence lines with offsets, including nested list fences."""
+    offset = 0
+    fence_char, fence_size = None, 0
+    for line in text.splitlines(keepends=True):
+        bare = line.rstrip("\r\n")
+        match = _FENCE.match(bare)
+        if fence_char:
+            if (match and match["marker"][0] == fence_char
+                    and len(match["marker"]) >= fence_size
+                    and not match["tail"].strip()):
+                fence_char, fence_size = None, 0
+        elif match:
+            fence_char, fence_size = match["marker"][0], len(match["marker"])
+        else:
+            yield offset, line, bare
+        offset += len(line)
+
+
+def _headline(rest):
+    """Accept an explicit bold headline; never guess from arbitrary prose."""
+    marker = rest[:2]
+    if marker not in ("**", "__"):
+        return None
+    position = 2
+    while True:
+        close = rest.find(marker, position)
+        if close < 0:
+            return None
+        preceding_slashes = len(rest[:close]) - len(rest[:close].rstrip("\\"))
+        if preceding_slashes % 2:
+            position = close + 2
+            continue
+        headline = rest[2:close]
+        suffix = rest[close + 2:]
+        if (not headline or headline != headline.strip()
+                or (suffix and (suffix[0].isalnum() or suffix[0] in "*_"))):
+            return None
+        return headline
+
+
+def parse_brief_stories(text, known_ids):
+    """Return lossless story slices, or None for whole-answer fallback.
+
+    Starts must use explicit bold headlines, a consistent outer indentation,
+    sequential numbering beginning at 1 (or repeated Markdown 1 markers), and a
+    known article ID outside fenced code. More-indented numbered items remain
+    in their enclosing story. If any
+    apparent outer story lacks a known citation, reject the entire split.
+    """
+    if not isinstance(text, str) or not text:
+        return None
+    known = set(known_ids)
+    if not known:
+        return None
+    candidates = []
+    for start, line, bare in _outside_fences(text):
+        match = _NUMBERED.match(bare)
+        if not match:
+            continue
+        headline = _headline(match["rest"])
+        if headline is not None:
+            candidates.append({"start": start, "header_start": start + match.start("rest"),
+                               "header_end": start + len(line),
+                               "indent": len(match["indent"]),
+                               "number": int(match["number"]), "headline": headline})
+    if not candidates:
+        return None
+    outer_indent = min(c["indent"] for c in candidates)
+    outer = [c for c in candidates if c["indent"] == outer_indent]
+    numbers = [c["number"] for c in outer]
+    if numbers != list(range(1, len(outer) + 1)) and numbers != [1] * len(outer):
+        return None
+    stories = []
+    for index, candidate in enumerate(outer):
+        end = outer[index + 1]["start"] if index + 1 < len(outer) else len(text)
+        raw = text[candidate["start"]:end]
+        visible = "".join(line for _, line, _ in _outside_fences(raw))
+        if not any(article_id in known for article_id in _CITATION.findall(visible)):
+            return None
+        stories.append({"number": candidate["number"], "headline": candidate["headline"],
+                        "prefix": text[candidate["start"]:candidate["header_start"]],
+                        "header": text[candidate["header_start"]:candidate["header_end"]],
+                        "body": text[candidate["header_end"]:end], "raw": raw,
+                        "start": candidate["start"], "end": end})
+    intro = text[:outer[0]["start"]]
+    if intro + "".join(story["raw"] for story in stories) != text:
+        return None
+    return {"intro": intro, "stories": stories}
+
+
+def answer_markdown(text):
+    """Render news currency literally while preserving code and link targets."""
+    protected = []
+    marker = "\ue010HW7currency"
+    while marker in text:
+        marker += "_"
+
+    def keep(value):
+        protected.append(value)
+        return f"{marker}{len(protected) - 1}\ue011"
+
+    # An unclosed fence protects the remainder, just as a Markdown code block.
+    offset = 0
+    fence = re.compile(r"(?m)^ {0,3}(`{3,}|~{3,})[^\n]*(?:\n|$)")
+    while match := fence.search(text, offset):
+        mark = match[1]
+        closing = re.search(
+            r"(?m)^ {0,3}" + re.escape(mark[0]) +
+            "{" + str(len(mark)) + r",}[ \t]*(?:\n|$)", text[match.end():]
+        )
+        end = match.end() + closing.end() if closing else len(text)
+        end -= int(end > match.start() and text[end - 1] == "\n")
+        token = keep(text[match.start():end])
+        text = text[:match.start()] + token + text[end:]
+        offset = match.start() + len(token)
+
+    text = re.sub(r"(`+)(?!`)([\s\S]*?)(?<!`)\1(?!`)", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?m)^ {0,3}\[[^\]\n]+\]:[^\n]*", lambda m: keep(m[0]), text)
+    text = re.sub(r"<(?:https?://|mailto:)[^>\n]+>", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?<=\])\[[^\]\n]*\]", lambda m: keep(m[0]), text)
+    offset = 0
+    while match := re.search(r"\]\(", text[offset:]):
+        start = offset + match.end() - 1
+        end, depth = start + 1, 1
+        while end < len(text) and depth:
+            if text[end] == "\\":
+                end += 2
+                continue
+            depth += (text[end] == "(") - (text[end] == ")")
+            end += 1
+        if depth:
+            # Do not alter the uncertain target of an unfinished link.
+            text = text[:start] + keep(text[start:])
+            break
+        token = keep(text[start:end])
+        text = text[:start] + token + text[end:]
+        offset = start + len(token)
+
+    # Bare URLs are data, too; an apostrophe or asterisks can belong to a URL.
+    text = re.sub(r"https?://[^\s<>]+", lambda m: keep(m[0]), text)
+    text = re.sub(r"(?<!\\)\$(?=[ \t]*[+-]?(?:\d|\.\d))", r"\\$", text)
+    text = display_text(text, emphasize_reading=True)
+    for index in range(len(protected) - 1, -1, -1):
+        text = text.replace(f"{marker}{index}\ue011", protected[index])
+    return linkify(text)
+
+
+def show_brief(text, message_index):
+    """Keep each story and its reading in one explicit, styled container."""
+    parsed = parse_brief_stories(text, ARTICLES)
+    if parsed is None:
+        st.markdown(answer_markdown(text))
+        return
+    if parsed["intro"].strip():
+        st.markdown(answer_markdown(parsed["intro"]))
+    for index, story in enumerate(parsed["stories"]):
+        tone = ("blush", "lilac", "mint")[index % 3]
+        with st.container(key=f"HW7_story_{tone}_{message_index}_{index}"):
+            st.markdown(
+                f'<div class="hw7-story-number">Story {index + 1:02d}</div>',
+                unsafe_allow_html=True,
+            )
+            with st.container(key=f"HW7_title_{message_index}_{index}"):
+                st.markdown(answer_markdown(story["header"]))
+            if story["body"].strip():
+                # Remove only the common list continuation indentation. Nested
+                # lists/code retain their indentation relative to the reading.
+                body = story["body"]
+                lines = [line for line in body.splitlines() if line.strip()]
+                common = min(len(line) - len(line.lstrip(" ")) for line in lines)
+                if common:
+                    body = "\n".join(line[common:] if line.strip() else line
+                                     for line in body.split("\n"))
+                with st.container(key=f"HW7_reading_{message_index}_{index}"):
+                    st.markdown(answer_markdown(body))
+
 def show_answer(msg, message_index):
     # One renderer for new and replayed answers; old answers keep their own lens.
     lens_label = LENS_LABELS.get(msg["lens"], msg["lens"]) if msg.get("lens") else ""
@@ -850,14 +1051,22 @@ def show_answer(msg, message_index):
         unsafe_allow_html=True,
     )
     ids = cited_ids(msg["content"])
-    if st.session_state.get("HW7_answer_view", "Brief") == "Plain text":
+    view_key = f"HW7_answer_view_{message_index}"
+    if view_key not in st.session_state:
+        st.session_state[view_key] = st.session_state.get("HW7_answer_view", "Brief")
+    view = st.radio(
+        "Display this answer", ["Brief", "Plain text"], horizontal=True,
+        key=view_key, label_visibility="collapsed",
+        help="Switch this answer’s presentation without asking the model again.",
+    )
+    if view == "Plain text":
         st.text(plain_answer_text(msg["content"]))
         if ids:
             st.markdown("Sources: " + " · ".join(
                 f"[{article_id} ↗]({ARTICLES[article_id]['url']})" for article_id in ids
             ))
     else:
-        st.markdown(linkify(display_text(msg["content"], emphasize_reading=True)))
+        show_brief(msg["content"], message_index)
     footer_text = footer(msg)
     if msg.get("lens") in LENS_LABELS:
         footer_text = footer_text.replace(f"{msg['lens']} lens", LENS_LABELS[msg["lens"]], 1)
