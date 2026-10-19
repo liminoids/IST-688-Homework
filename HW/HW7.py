@@ -683,9 +683,12 @@ def ask_client():
 st.markdown(
     f'<style>body:has(#hw7-page-marker) {{--hw7-slider-fill: {(top_n - 5) * 10}%;}}</style>'
     '<header class="hw7-masthead">'
-    '<p class="hw7-kicker">HW 07 / Client intelligence / Article archive</p>'
+    '<p class="hw7-kicker">HW 07 / Article archive</p>'
     '<h1>The Brief.</h1>'
-    '<p class="hw7-deck">A reading of the news, with room for why it matters.</p>'
+    f'<p class="hw7-deck">A news desk for a global law firm. It answers only from '
+    f'{len(ARTICLES):,} saved articles about {len(COMPANIES)} clients ({SPAN}). Ask for the '
+    f'most interesting news, or for news about a client or topic. The lens in the sidebar '
+    f'sets what \u201cinteresting\u201d is for.</p>'
     '<div class="hw7-archive">'
     f'<span>{len(ARTICLES):,} saved articles</span>'
     f'<span>{len(COMPANIES)} client companies</span>'
@@ -750,7 +753,7 @@ for message_index, msg in enumerate(st.session_state.HW7_messages):
             st.markdown(display_text(msg["content"]))
 
 prompt = st.chat_input(
-    "Ask about a client or topic\u2026",
+    "Ask for the most interesting news, or news about a client or topic\u2026",
     key="HW7_chat",
 )
 if not prompt and st.session_state.get("HW7_pending"):
