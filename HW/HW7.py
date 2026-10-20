@@ -48,6 +48,18 @@ import chromadb
 STYLE = """
 <div id="hw7-page-marker" aria-hidden="true"></div>
 <style>
+body:has(#hw7-page-marker) .hw7-log {
+    font-family: "Courier New", Courier, monospace; font-size: .95rem; line-height: 1.55;
+    background: #f7f2e7; color: #1f1b16; border: 1px solid #cdbfae; border-left: 4px double #1f1b16;
+    border-radius: 0; padding: 1rem 1.1rem 1rem .5rem; margin: .4rem 0 .6rem; overflow-wrap: anywhere;
+}
+body:has(#hw7-page-marker) .hw7-log .l { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); }
+body:has(#hw7-page-marker) .hw7-log .n { color: #8a8073; text-align: right; padding-right: .75rem; user-select: none; }
+body:has(#hw7-page-marker) .hw7-log .q { color: #5a524a; }
+body:has(#hw7-page-marker) .hw7-log .h { font-weight: 700; }
+body:has(#hw7-page-marker) .hw7-log a { color: #1f1b16; text-decoration: underline; }
+body:has(#hw7-page-marker) .hw7-log .cur { display: inline-block; width: .6em; height: 1.1em; vertical-align: text-bottom; background: #1f1b16; animation: hw7-blink 1s steps(2, start) infinite; }
+@keyframes hw7-blink { to { visibility: hidden; } }
 body:has(#hw7-page-marker) {
     --hw7-ink: #493449;
     --hw7-rose: #823d64;
@@ -271,6 +283,11 @@ BUFFER_TURNS = 5   # short-term memory: the last 5 user/assistant pairs
 N_RESULTS = 8      # articles search_news returns
 MAX_ROUNDS = 4     # tool rounds before the model has to answer
 
+# The five broad affects the Language and framing lens scans for, one per
+# run, in rotation. A provisional set, Diva's to replace - edit it here.
+# A question that names one of them ("scan for outrage") uses that one instead.
+AFFECTS = ["excitement", "contentment", "outrage", "dread", "shame"]
+
 
 # ---------- Loading the saved database (no building here) ----------
 @st.cache_resource(show_spinner=False)
@@ -462,12 +479,24 @@ LENSES = {
         "client": STRICT_CLIENT,
     },
     "Affect": {
-        "goal": "Name what a story could do to the person reading it.",
+        "goal": (
+            "Show how the story\u2019s language, emphasis, and concrete circumstances give it "
+            "emotional weight, scanning for one broad affect per run."
+        ),
         "rule": (
-            "Rank by how strongly a story could move a lawyer at the firm: the intensity and "
-            "mix of affective, somatic, and cognitive responses it invites, such as alarm, "
-            "urgency, curiosity, a jolt, unease, or relief. In each reading, name the responses "
-            "and what in the saved text invites them; several can coexist, including competing ones."
+            "This run scans for {affect}. Rank highest the stories whose saved text would most "
+            "produce {affect} through how it is told: charged wording, attribution, certainty or "
+            "uncertainty, repetition, what the headline foregrounds, and the named people or "
+            "institutions, places, actions, amounts, and deadlines that make the event tangible. "
+            "Rank by what the telling does, not by how dramatic the topic sounds; restrained "
+            "language can carry weight too. Use only features actually present in the saved text. "
+            "In each reading, trace one path: a word or detail, how the story frames the event, "
+            "the concrete circumstances that support that framing, and the {affect} it could "
+            "produce. Say for whom: the firm, the client, the public, a regulator, or investors, "
+            "and note when what would move one would leave another cold. Distinguish the "
+            "journalist\u2019s wording from quotations and allegations, explain possible responses "
+            "cautiously, and name {affect} only with its textual basis. If the saved text is only "
+            "a headline and a line, say what that wording does and go no further."
         ),
         "client": STRICT_CLIENT,
     },
@@ -485,11 +514,33 @@ LENSES = {
 }
 
 
+def lens_text(lens, affect=None):
+    # The Language and framing rule names the affect its run scans for;
+    # the other lenses' text is fixed.
+    goal, rule = LENSES[lens]["goal"], LENSES[lens]["rule"]
+    if lens == "Affect":
+        rule = rule.replace("{affect}", affect or "one broad affect")
+    return goal, rule
+
+
+def affect_in(text):
+    # A question that names one of the five affects chooses it for the run.
+    low = (text or "").lower()
+    return next((a for a in AFFECTS if re.search(r"\b" + re.escape(a) + r"\b", low)), None)
+
+
+def next_affect():
+    # Rotation: each new brief under the lens takes the next affect in the list.
+    i = st.session_state.get("HW7_affect_index", 0) % len(AFFECTS)
+    st.session_state.HW7_affect_index = i + 1
+    return AFFECTS[i]
+
+
 # Display labels describe the existing rules; prompt keys and wording stay intact.
 LENS_LABELS = {
     "Exposure": "Legal risk and legal work",
     "Stakes": "Financial scale",
-    "Affect": "Intensity of reader response",
+    "Affect": "Language and framing",
     "Offstage": "Indirect client relevance",
 }
 LENS_AUDIT = {
@@ -502,8 +553,8 @@ LENS_AUDIT = {
         "limit": "Deal values, valuations, fines and claimed damages measure different things. The rule does not specify how to compare them; it does not simply say to choose the largest number.",
     },
     "Affect": {
-        "summary": "Prioritizes how strongly a story could affect a lawyer emotionally, physically or cognitively.",
-        "limit": "These are possible interpretations, not measured reactions. Every mode already asks for possible reader responses; this option makes their intensity part of the ranking.",
+        "summary": "Prioritizes stories whose wording, emphasis and concrete details give the event traceable emotional weight, scanning for one broad affect per run and saying for whom it would land.",
+        "limit": "Most saved records are a headline and one line, so this reading often works on headline wording alone. It shows how the text frames an event and what that could invite; it does not measure anyone\u2019s reaction. The affect rotates with each brief, so two briefs under this priority rank differently by design.",
     },
     "Offstage": {
         "summary": "Prioritizes supported connections through competitors, suppliers, regulators, industries or related lawsuits.",
@@ -512,15 +563,16 @@ LENS_AUDIT = {
 }
 
 
-def system_prompt(top_n, lens):
+def system_prompt(top_n, lens, affect=None):
+    goal, rule = lens_text(lens, affect)
     return (
         f"You are the news desk for a large global law firm. You report only on the "
         f"firm\u2019s news file: {len(ARTICLES):,} articles about {len(COMPANIES)} client "
         f"companies, from {SPAN}. Never use outside knowledge about these events, and never "
         f"invent articles, quotes, numbers, or links.\n\n"
         f"WHAT \u201cINTERESTING\u201d MEANS HERE\n{INTERESTING}\n"
-        f"This brief uses the {lens} lens. Its goal: {LENSES[lens]['goal']} "
-        f"{LENSES[lens]['rule']}\n\n"
+        f"This brief uses the {lens} lens. Its goal: {goal} "
+        f"{rule}\n\n"
         f"FOR \u201cMOST INTERESTING\u201d REQUESTS (the brief)\n"
         f"Call list_headlines, pick candidates, open them with get_articles, then rank the "
         f"top {top_n}, most interesting first. One entry per story: if two outlets cover the "
@@ -844,7 +896,7 @@ lens = st.sidebar.radio(
 st.sidebar.caption(f"Goal: {LENSES[lens]['goal']}")
 top_n = st.sidebar.slider("Stories in a brief", 5, 15, 10, key="HW7_top_n")
 st.sidebar.radio(
-    "Default answer display", ["Brief", "Plain text"], horizontal=True, key="HW7_answer_view",
+    "Default answer display", ["Log", "Brief", "Plain text"], horizontal=True, key="HW7_answer_view",
     help="Starting view for new answers. Each answer has its own display switch; switching does not ask the model again.",
 )
 st.sidebar.caption(f"{len(ARTICLES):,} articles \u00b7 {len(COMPANIES)} clients \u00b7 loaded from HW7_ChromaDB/")
@@ -855,7 +907,7 @@ if "HW7_messages" not in st.session_state:
 if st.sidebar.button("Clear conversation", key="HW7_clear"):
     st.session_state.HW7_messages = []
     for state_key in list(st.session_state):
-        if state_key == "HW7_story_readings" or state_key.startswith(("HW7_lens_", "HW7_answer_view_")):
+        if state_key in ("HW7_story_readings", "HW7_affect_index") or state_key.startswith(("HW7_lens_", "HW7_answer_view_")):
             del st.session_state[state_key]
     st.rerun()
 
@@ -869,6 +921,12 @@ def ask_client():
     if company:
         ask(f"Find news about {company}")
     st.session_state.HW7_client = None
+
+
+def ask_with_lens(key):
+    # One click: set the priority in the sidebar and run the brief.
+    st.session_state.HW7_lens = key
+    ask("Find the most interesting news")
 
 
 # The two ways in: the brief, or one client's news.
@@ -901,10 +959,21 @@ right.selectbox(
     placeholder="News about a client\u2026", on_change=ask_client, label_visibility="collapsed",
     format_func=display_text,
 )
+# One click per priority: sets it in the sidebar and runs the brief. The
+# Language and framing button shows the affect its brief will scan for.
+st.caption("RANK BY ONE PRIORITY")
+for column, key in zip(st.columns(4), LENSES):
+    label = LENS_LABELS[key]
+    if key == "Affect":
+        label += f" \u00b7 {AFFECTS[st.session_state.get('HW7_affect_index', 0) % len(AFFECTS)]}"
+    column.button(label, key=f"HW7_quick_{key}", on_click=ask_with_lens, args=(key,),
+                  use_container_width=True, help=LENSES[key]["goal"])
+next_scan = AFFECTS[st.session_state.get("HW7_affect_index", 0) % len(AFFECTS)]
 st.markdown(
     '<div class="hw7-lens-strip"><span class="hw7-kicker">Priority for the next brief</span>'
     f'<strong>{LENS_LABELS[lens]}</strong>'
-    '</div>',
+    + (f'<span class="hw7-goal">scanning for {escape(next_scan)} next</span>' if lens == "Affect" else "")
+    + '</div>',
     unsafe_allow_html=True,
 )
 # This inspector changes only what is displayed, not the selected ranking rule.
@@ -920,7 +989,9 @@ with st.expander("Inspect each ranking rule", expanded=False):
     st.markdown("**Exact goal**")
     st.write(display_text(LENSES[inspected_lens]["goal"]))
     st.markdown("**Exact ranking instruction**")
-    st.write(display_text(LENSES[inspected_lens]["rule"]))
+    st.write(display_text(lens_text(inspected_lens, "the affect chosen for the run")[1]))
+    if inspected_lens == "Affect":
+        st.caption("Affects in rotation: " + ", ".join(AFFECTS) + ". Naming one in your question uses it instead.")
     st.markdown("**Exact article relevance instruction for ranked briefs**")
     st.write(display_text(LENSES[inspected_lens]["client"]))
     st.caption(
@@ -941,7 +1012,7 @@ if not st.session_state.HW7_messages and not st.session_state.get("HW7_pending")
 
 
 def footer(msg):
-    parts = [msg["model"]] + ([f"{msg['lens']} lens"] if msg.get("lens") else []) + msg["steps"]
+    parts = [msg["model"]] + ([f"{msg['lens']} lens"] if msg.get("lens") else []) + ([f"scanning for {msg['affect']}"] if msg.get("affect") else []) + msg["steps"]
     parts.append(f"{msg['tokens_in']:,} tokens in / {msg['tokens_out']:,} out")
     parts.append(f"{msg['seconds']:.1f} s")
     return " \u00b7 ".join(parts)
@@ -1143,9 +1214,10 @@ def get_story_reading(cache, context, lens):
     record = bucket.get(lens)
     return copy.deepcopy(record) if record is not None else None
 
-def story_reading_prompt(lens, interesting, lenses):
+def story_reading_prompt(lens, interesting, lenses, affect=None):
     """A separate, purpose-specific prompt; original app prompts stay intact."""
     settings = lenses[lens]
+    rule = settings["rule"].replace("{affect}", affect or "one broad affect") if lens == "Affect" else settings["rule"]
     return (
         "Write one alternative Reading paragraph for one fixed news story. "
         "The user supplied that story’s saved article records as JSON data. "
@@ -1154,7 +1226,7 @@ def story_reading_prompt(lens, interesting, lenses):
         "invent facts or quotations, search, select another story, or rank stories.\n\n"
         f"DEFINITION\n{interesting}\n\n"
         f"READING PRIORITY: {lens}\nGOAL\n{settings['goal']}\n"
-        f"EXISTING PRIORITY RULE\n{settings['rule']}\n"
+        f"EXISTING PRIORITY RULE\n{rule}\n"
         f"EXISTING ARTICLE RELEVANCE RULE\n{settings['client']}\n\n"
         "Apply these rules only to reinterpret this same fixed story. References to "
         "ranking describe this priority’s emphasis; do not rank or replace the story. "
@@ -1170,7 +1242,7 @@ def story_reading_prompt(lens, interesting, lenses):
         "IDs present in the supplied records; never write or infer URLs."
     )
 
-def request_story_reading(cache, context, lens, client, interesting, lenses):
+def request_story_reading(cache, context, lens, client, interesting, lenses, affect=None):
     """Call only after an explicit UI click; cache hits make zero API calls."""
     if lens not in lenses:
         raise ValueError("Unknown reading priority.")
@@ -1178,7 +1250,7 @@ def request_story_reading(cache, context, lens, client, interesting, lenses):
     if cached is not None:
         return cached
     messages = [
-        {"role": "system", "content": story_reading_prompt(lens, interesting, lenses)},
+        {"role": "system", "content": story_reading_prompt(lens, interesting, lenses, affect)},
         {"role": "user", "content": json.dumps({"story_headline": context["headline"],
                                                   "saved_records": context["sources"]},
                                                  ensure_ascii=False)},
@@ -1202,7 +1274,7 @@ def request_story_reading(cache, context, lens, client, interesting, lenses):
               "tokens_in": getattr(usage, "prompt_tokens", None),
               "tokens_out": getattr(usage, "completion_tokens", None),
               "seconds": seconds, "source_ids": list(context["source_ids"]),
-              "source_hash": context["source_hash"], "origin": "alternate"}
+              "source_hash": context["source_hash"], "origin": "alternate", "affect": affect}
     cache[context["cache_key"]][lens] = copy.deepcopy(result)
     return result
 
@@ -1246,7 +1318,10 @@ def show_story_reading(story, msg, message_index, story_index):
         if get_story_reading(cache, context, selected) is None:
             try:
                 with st.spinner(f"Writing the {LENS_LABELS[selected].lower()} reading…"):
-                    request_story_reading(cache, context, selected, client, INTERESTING, LENSES)
+                    affect = None
+                    if selected == "Affect":
+                        affect = msg.get("affect") if msg.get("lens") == "Affect" and msg.get("affect") else next_affect()
+                    request_story_reading(cache, context, selected, client, INTERESTING, LENSES, affect)
             except Exception as error:
                 st.session_state[error_key] = str(error)
     reading = get_story_reading(cache, context, selected)
@@ -1273,9 +1348,10 @@ def show_story_reading(story, msg, message_index, story_index):
         else:
             tokens_in = f"{reading['tokens_in']:,}" if reading.get("tokens_in") is not None else "unavailable"
             tokens_out = f"{reading['tokens_out']:,}" if reading.get("tokens_out") is not None else "unavailable"
+            scan = f" · scanning for {reading['affect']}" if reading.get("affect") else ""
             st.caption(
                 f"{reading['model']} · {tokens_in} tokens in / "
-                f"{tokens_out} out · {reading['seconds']:.1f} s · "
+                f"{tokens_out} out · {reading['seconds']:.1f} s{scan} · "
                 "Saved for this conversation"
             )
 
@@ -1333,24 +1409,107 @@ def show_brief(text, message_index, msg=None):
                 with st.container(key=f"HW7_reading_{message_index}_{index}"):
                     st.markdown(answer_markdown(body))
 
-def show_answer(msg, message_index):
+# ---------- The log: a pleading-paper transcript, the default answer view ----------
+_HEADER_META = re.compile(r"[\u2014\u2013-]\s*(?P<company>[^\u00b7\n\[]+?)\s*\u00b7\s*(?P<date>\d{4}-\d{2}-\d{2})")
+
+
+def _plain(text):
+    # Markdown emphasis and code marks off; ids stay so they can be linked.
+    return re.sub(r"\*\*|__|`", "", text)
+
+
+def _link_ids(html_text):
+    def swap(m):
+        a = ARTICLES.get(m.group(1))
+        if not a:
+            return m.group(0)
+        return (f'<a href="{escape(a["url"], quote=True)}" target="_blank" '
+                f'rel="noopener noreferrer">{m.group(1)}</a>')
+    return re.sub(r"\[?\b(news-\d{4})\b\]?", swap, html_text)
+
+
+def log_lines(msg, message_index):
+    # The answer as transcript lines: the question, a caption, then each story.
+    messages = st.session_state.HW7_messages
+    question = ""
+    if 0 < message_index <= len(messages) and messages[message_index - 1]["role"] == "user":
+        question = messages[message_index - 1]["content"]
+    label = LENS_LABELS.get(msg.get("lens"), msg.get("lens") or "")
+    caption = f"{label} \u00b7 {msg['model']}" + (f" \u00b7 scanning for {msg['affect']}" if msg.get("affect") else "")
+    lines = []
+    if question:
+        lines.append(("q", f"> {question}"))
+    lines += [("t", f"THE BRIEF \u00b7 {msg.get('when') or SPAN}"), ("t", caption), ("t", "")]
+    text = selected_answer_text(msg, message_index)
+    parsed = parse_brief_stories(text, ARTICLES)
+    if parsed:
+        for n, story in enumerate(parsed["stories"], 1):
+            ids = [i for i in dict.fromkeys(_CITATION.findall(story["raw"])) if i in ARTICLES]
+            meta = _HEADER_META.search(story["header"])
+            company = ARTICLES[ids[0]]["company"] if ids else (meta["company"] if meta else "")
+            lines.append(("t", f"{n:02d}  {company.upper()}".rstrip()))
+            lines.append(("h", story["headline"]))
+            lines.append(("t", ""))
+            body = "\n".join(line.strip() for line in story["body"].splitlines())
+            for para in re.split(r"\n\s*\n", body.strip()):
+                if para.strip():
+                    lines.append(("t", _plain(" ".join(para.split()))))
+            lines.append(("t", ""))
+            if ids:
+                lines.append(("s", ids))
+            lines.append(("t", ""))
+    else:
+        for para in text.strip().split("\n"):
+            lines.append(("t", _plain(para.strip())))
+    return lines
+
+
+def render_log(lines, cursor):
+    rows = []
+    for number, (kind, content) in enumerate(lines, 1):
+        if kind == "s":
+            inner = "src " + " ".join(_link_ids(i) for i in content)
+        else:
+            inner = _link_ids(escape(display_text(content, markdown=False))) if content else "&nbsp;"
+        rows.append(f'<div class="l"><span class="n">{number}</span><span class="{kind}">{inner}</span></div>')
+    if cursor:
+        rows.append(f'<div class="l"><span class="n">{len(lines) + 1}</span><span class="t"><span class="cur"></span></span></div>')
+    return '<div class="hw7-log">' + "".join(rows) + "</div>"
+
+
+def show_log(msg, message_index, reveal=False):
+    # A new answer types itself out line by line; replayed answers appear at once.
+    lines = log_lines(msg, message_index)
+    box = st.empty()
+    if reveal:
+        for k in range(1, len(lines) + 1):
+            box.markdown(render_log(lines[:k], cursor=True), unsafe_allow_html=True)
+            time.sleep(0.035)
+    box.markdown(render_log(lines, cursor=True), unsafe_allow_html=True)
+
+
+def show_answer(msg, message_index, reveal=False):
     # One renderer for new and replayed answers; old answers keep their own lens.
     lens_label = LENS_LABELS.get(msg["lens"], msg["lens"]) if msg.get("lens") else ""
     st.markdown(
         '<div class="hw7-answer-head"><span>From the news file</span>'
-        f'<span class="hw7-answer-lens">Brief priority: {escape(lens_label)}</span></div>',
+        f'<span class="hw7-answer-lens">Brief priority: {escape(lens_label)}'
+        + (f" \u00b7 scanning for {escape(msg['affect'])}" if msg.get("affect") else "")
+        + '</span></div>',
         unsafe_allow_html=True,
     )
     ids = cited_ids(msg["content"])
     view_key = f"HW7_answer_view_{message_index}"
     if view_key not in st.session_state:
-        st.session_state[view_key] = st.session_state.get("HW7_answer_view", "Brief")
+        st.session_state[view_key] = st.session_state.get("HW7_answer_view", "Log")
     view = st.radio(
-        "Display this answer", ["Brief", "Plain text"], horizontal=True,
+        "Display this answer", ["Log", "Brief", "Plain text"], horizontal=True,
         key=view_key, label_visibility="collapsed",
         help="Switch this answer’s presentation without asking the model again.",
     )
-    if view == "Plain text":
+    if view == "Log":
+        show_log(msg, message_index, reveal)
+    elif view == "Plain text":
         st.text(plain_answer_text(selected_answer_text(msg, message_index)))
         if ids:
             st.markdown("Sources: " + " · ".join(
@@ -1385,8 +1544,12 @@ if prompt:
         st.markdown(display_text(prompt))
 
     model = MODELS[model_label]
+    named = affect_in(prompt)
+    run_lens = "Affect" if named else lens   # naming one of the five affects always scans for it
+    affect = (named or next_affect()) if run_lens == "Affect" else None
+    spent = bool(affect) and named is None
     buffer = st.session_state.HW7_messages[-(BUFFER_TURNS * 2):]
-    payload = [{"role": "system", "content": system_prompt(top_n, lens)}] + [
+    payload = [{"role": "system", "content": system_prompt(top_n, run_lens, affect)}] + [
         {"role": m["role"], "content": m["content"]} for m in buffer
     ]
 
@@ -1396,14 +1559,18 @@ if prompt:
             with st.status("Reading the news file\u2026", expanded=False) as status:
                 answer_call = ask_model_responses if model == "gpt-6-astra" else ask_model
                 answer, steps, usage = answer_call(model, payload, ReadingStatus(status))
+                if spent and not any(step.startswith("Read all") for step in steps):
+                    st.session_state.HW7_affect_index -= 1   # not a ranked brief: the affect wasn't spent
+                    affect = None
                 status.update(label=display_text(" \u00b7 ".join(steps)) or "Answered directly", state="complete")
         except Exception as error:
             st.error(display_text(f"The model call failed: {error}"))
             st.stop()
         msg = {
-            "role": "assistant", "content": answer, "model": model, "lens": lens, "steps": steps,
+            "role": "assistant", "content": answer, "model": model, "lens": run_lens, "affect": affect, "steps": steps,
             "tokens_in": usage["in"], "tokens_out": usage["out"],
             "seconds": time.perf_counter() - started,
+            "when": time.strftime("%b %-d, %Y %H:%M"),
         }
-        show_answer(msg, len(st.session_state.HW7_messages))
+        show_answer(msg, len(st.session_state.HW7_messages), reveal=True)
     st.session_state.HW7_messages.append(msg)
